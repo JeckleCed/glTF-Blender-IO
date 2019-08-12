@@ -66,7 +66,11 @@ def __gather_node(channels: typing.Tuple[bpy.types.FCurve],
             blender_bone = blender_object.path_resolve(channels[0].data_path.rsplit('.', 1)[0])
 
         if isinstance(blender_bone, bpy.types.PoseBone):
-            return gltf2_blender_gather_joints.gather_joint(blender_bone, export_settings)
+            if export_settings["gltf_only_defbones"] is True:
+                expose_children = False
+            else:
+                expose_children = True
+            return gltf2_blender_gather_joints.gather_joint(blender_bone, expose_children, export_settings)
 
     return gltf2_blender_gather_nodes.gather_node(blender_object, None, export_settings)
 

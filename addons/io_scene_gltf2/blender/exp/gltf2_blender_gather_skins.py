@@ -116,10 +116,22 @@ def __gather_inverse_bind_matrices(blender_object, mesh_object, export_settings)
 
 def __gather_joints(blender_object, export_settings):
     root_joints = []
-    # build the hierarchy of nodes out of the bones
-    for blender_bone in blender_object.pose.bones:
-        if not blender_bone.parent:
-            root_joints.append(gltf2_blender_gather_joints.gather_joint(blender_bone, export_settings))
+
+    if export_settings["gltf_only_defbones"] is True:
+        expose_children = False
+        bones = [b for b in blender_object.pose.bones if blender_object.data.bones[b.name].use_deform is True]
+        # build the hierarchy of nodes out of the bones
+        for blender_bone in bones:
+            root_joints.append(gltf2_blender_gather_joints.gather_joint(blender_bone, expose_children, export_settings))
+
+    else:
+        expose_children = True
+        # build the hierarchy of nodes out of the bones
+        for blender_bone in blender_object.pose.bones:
+            if not blender_bone.parent:
+                root_joints.append(gltf2_blender_gather_joints.gather_joint(blender_bone, expose_children, export_settings))
+
+
 
     # joints is a flat list containing all nodes belonging to the skin
     joints = []

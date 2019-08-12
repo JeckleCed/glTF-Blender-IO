@@ -145,12 +145,20 @@ def __gather_children(blender_object, blender_scene, export_settings):
 
     # blender bones
     if blender_object.type == "ARMATURE":
-        root_joints = []
-        for blender_bone in blender_object.pose.bones:
-            if not blender_bone.parent:
-                joint = gltf2_blender_gather_joints.gather_joint(blender_bone, export_settings)
+        if export_settings["gltf_only_defbones"] is False:
+            root_joints = []
+            for blender_bone in blender_object.pose.bones:
+                if not blender_bone.parent:
+                    joint = gltf2_blender_gather_joints.gather_joint(blender_bone, True, export_settings)
+                    children.append(joint)
+                    root_joints.append(joint)
+        else:
+            root_joints = []
+            # Export only deformation bones, all bones will be at root level in armature
+            for blender_bone in [b for b in blender_object.pose.bones if blender_object.data.bones[b.name].use_deform is True]:
+                joint = gltf2_blender_gather_joints.gather_joint(blender_bone, False, export_settings)
                 children.append(joint)
-                root_joints.append(joint)
+
         # handle objects directly parented to bones
         direct_bone_children = [child for child in blender_object.children if child.parent_bone]
         def find_parent_joint(joints, name):

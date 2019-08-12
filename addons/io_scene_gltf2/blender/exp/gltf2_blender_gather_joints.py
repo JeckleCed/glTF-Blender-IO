@@ -23,7 +23,7 @@ from io_scene_gltf2.blender.com import gltf2_blender_math
 
 
 @cached
-def gather_joint(blender_bone, export_settings):
+def gather_joint(blender_bone, expose_children, export_settings):
     """
     Generate a glTF2 node from a blender bone, as joints in glTF2 are simply nodes.
 
@@ -36,6 +36,7 @@ def gather_joint(blender_bone, export_settings):
         axis_basis_change = mathutils.Matrix(
             ((1.0, 0.0, 0.0, 0.0), (0.0, 0.0, 1.0, 0.0), (0.0, -1.0, 0.0, 0.0), (0.0, 0.0, 0.0, 1.0)))
 
+    # TODO DEFBONES
     # extract bone transform
     if blender_bone.parent is None:
         correction_matrix_local = gltf2_blender_math.multiply(axis_basis_change, blender_bone.bone.matrix_local)
@@ -55,8 +56,9 @@ def gather_joint(blender_bone, export_settings):
 
     # traverse into children
     children = []
-    for bone in blender_bone.children:
-        children.append(gather_joint(bone, export_settings))
+    if expose_children is True:
+        for bone in blender_bone.children:
+            children.append(gather_joint(bone, expose_children, export_settings))
 
     # finally add to the joints array containing all the joints in the hierarchy
     return gltf2_io.Node(

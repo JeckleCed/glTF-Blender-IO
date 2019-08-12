@@ -50,7 +50,11 @@ def gather_animation_channels(blender_action: bpy.types.Action,
                 bake_range_end = max(bake_range_end, max([channel.range()[1] for channel in chans]))
 
         # Then bake all bones
-        for bone in blender_object.data.bones:
+        if export_settings["gltf_only_defbones"] is True:
+            bones = [b for b in blender_object.data.bones if b.use_deform is True]
+        else:
+            bones = blender_object.data.bones
+        for bone in bones:
             for p in ["location", "rotation_quaternion", "scale"]:
                 channel = __gather_animation_channel(
                     (),
@@ -95,6 +99,11 @@ def __filter_animation_channel(channels: typing.Tuple[bpy.types.FCurve],
                                blender_object: bpy.types.Object,
                                export_settings
                                ) -> bool:
+    if blender_object.type == "ARMATURE":
+        if export_settings["gltf_only_defbones"] is True and export_settings["gltf_force_sampling"] is False:
+            blender_bone = blender_object.path_resolve(channels[0].data_path.rsplit('.', 1)[0])
+            if blender_object.data.bones[blender_bone.name].use_deform is False:
+                return False
     return True
 
 

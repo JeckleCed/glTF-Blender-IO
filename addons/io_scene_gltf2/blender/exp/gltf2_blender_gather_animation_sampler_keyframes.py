@@ -163,7 +163,11 @@ def gather_keyframes(blender_object_if_armature: typing.Optional[bpy.types.Objec
                     if bpy.app.version < (2, 80, 0):
                         new_matrix = blender_object_if_armature.convert_space(pose_bone_if_armature, matrix, 'POSE', 'LOCAL')
                     else:
-                        new_matrix = blender_object_if_armature.convert_space(pose_bone=pose_bone_if_armature, matrix=matrix, from_space='POSE', to_space='LOCAL')
+                        if export_settings["gltf_only_defbones"] is False:
+                            new_matrix = blender_object_if_armature.convert_space(pose_bone=pose_bone_if_armature, matrix=matrix, from_space='POSE', to_space='LOCAL')
+                        else:
+                            # TODO DEFBONES
+                            new_matrix = blender_object_if_armature.convert_space(pose_bone=pose_bone_if_armature, matrix=matrix, from_space='POSE', to_space='LOCAL')
                     trans, rot, scale = new_matrix.decompose()
                 if bake_channel is None:
                     target_property = channels[0].data_path.split('.')[-1]
