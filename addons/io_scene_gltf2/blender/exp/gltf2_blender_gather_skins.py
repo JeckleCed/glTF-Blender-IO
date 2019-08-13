@@ -69,6 +69,7 @@ def __gather_inverse_bind_matrices(blender_object, mesh_object, export_settings)
             ((1.0, 0.0, 0.0, 0.0), (0.0, 0.0, 1.0, 0.0), (0.0, -1.0, 0.0, 0.0), (0.0, 0.0, 0.0, 1.0)))
 
     # build the hierarchy of nodes out of the bones
+    # TODO DEFBONES
     root_bones = []
     for blender_bone in blender_object.pose.bones:
         if not blender_bone.parent:
